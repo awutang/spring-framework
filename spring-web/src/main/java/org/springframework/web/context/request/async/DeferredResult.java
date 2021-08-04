@@ -252,6 +252,7 @@ public class DeferredResult<T> {
 			// At this point, we got a new result to process
 			this.result = result;
 			resultHandlerToUse = this.resultHandler;
+			System.out.println(Thread.currentThread().getName() + "setResultInternal,this.resultHandler:" + resultHandlerToUse);
 			if (resultHandlerToUse == null) {
 				// No result handler set yet -> let the setResultHandler implementation
 				// pick up the result object and invoke the result handler for it.

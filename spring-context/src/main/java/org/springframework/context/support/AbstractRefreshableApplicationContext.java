@@ -124,9 +124,15 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			closeBeanFactory();
 		}
 		try {
+			// 创建ioc容器(beanFactory)
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
 			customizeBeanFactory(beanFactory);
+
+			// 初始化beanFactory
+			// 1. 加载beanDefinition(包括定位、)
+			// 将xml文件内容转成beanDefinition数据结构--也有beanDefinition注册
+			// 模板设计方法
 			loadBeanDefinitions(beanFactory);
 			this.beanFactory = beanFactory;
 		}

@@ -166,6 +166,10 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 				}
 			}
 			else {
+				// 从FactoryBean中获取真正想要的bean,通过在实现类（实现了FactoryBean接口）中定义getObject().
+				// myConfusion:factory是何时被实例化的呢？--是从DefaultSingletonBeanRegistry.singletonObjects中获取到的，
+				//  那是何时实例化factoryBean并放入这个map的呢？应用启动时fresh()?为啥DefaultSingletonBeanRegistry.singletonObjects被叫做父容器？
+				/**一个Bean如果实现了FactoryBean接口，那么根据该Bean的名称获取到的实际上是getObject()返回的对象，而不是这个Bean自身实例，如果要获取这个Bean自身实例，那么需要在名称前面加上'&'符号。*/
 				object = factory.getObject();
 			}
 		}

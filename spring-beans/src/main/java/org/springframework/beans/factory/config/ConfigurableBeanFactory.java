@@ -58,6 +58,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	String SCOPE_SINGLETON = "singleton";
 
 	/**
+	 * 原型模式，每次通过容器的getBean方法获取prototype定义的Bean时，都将产生一个新的Bean实例，适用于有状态的Bean
 	 * Scope identifier for the standard prototype scope: "prototype".
 	 * Custom scopes can be added via {@code registerScope}.
 	 * @see #registerScope

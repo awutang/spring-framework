@@ -452,10 +452,13 @@ public final class WebAsyncManager {
 
 		try {
 			interceptorChain.applyPreProcess(this.asyncWebRequest, deferredResult);
+
 			deferredResult.setResultHandler(result -> {
 				result = interceptorChain.applyPostProcess(this.asyncWebRequest, deferredResult, result);
 				setConcurrentResultAndDispatch(result);
+				System.out.println(Thread.currentThread().getName() + " setConcurrentResultAndDispatch, result:" + result);
 			});
+			System.out.println(Thread.currentThread().getName() + " deferredResult.setResultHandler");
 		}
 		catch (Throwable ex) {
 			setConcurrentResultAndDispatch(ex);

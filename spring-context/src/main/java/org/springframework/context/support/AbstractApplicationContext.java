@@ -512,12 +512,18 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		return this.applicationListeners;
 	}
 
+	/**
+	 * ioc容器的初始化
+	 * @throws BeansException
+	 * @throws IllegalStateException
+	 */
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
+			// 在子类中启动refreshBeanFactory()
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
@@ -525,30 +531,39 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			prepareBeanFactory(beanFactory);
 
 			try {
+				// 设置beanFactory的后置处理器
 				// Allows post-processing of the bean factory in context subclasses.
 				postProcessBeanFactory(beanFactory);
 
+				// 调用beanFactory的后置处理器，这些后置处理器是作为bean注册在context中的
 				// Invoke factory processors registered as beans in the context.
 				invokeBeanFactoryPostProcessors(beanFactory);
 
+				// 注册bean的后置处理器，在bean的创建过程中调用
 				// Register bean processors that intercept bean creation.
 				registerBeanPostProcessors(beanFactory);
 
+				// 初始化上下文的消息源
 				// Initialize message source for this context.
 				initMessageSource();
 
+				// 初始化上下文中给的事件机制
 				// Initialize event multicaster for this context.
 				initApplicationEventMulticaster();
 
+				// 初始化其他特殊bean
 				// Initialize other special beans in specific context subclasses.
 				onRefresh();
 
 				// Check for listener beans and register them.
 				registerListeners();
 
+				// 实例化所有的non-lazy-init实例
 				// Instantiate all remaining (non-lazy-init) singletons.
+				// myConfusion:对于lazy-init的呢？
 				finishBeanFactoryInitialization(beanFactory);
 
+				// 发布容器事件
 				// Last step: publish corresponding event.
 				finishRefresh();
 			}

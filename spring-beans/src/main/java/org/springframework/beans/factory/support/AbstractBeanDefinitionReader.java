@@ -180,6 +180,12 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	}
 
 
+	/**
+	 * 定位到文件之后进行载入、解析、注册
+	 * @param resources the resource descriptors
+	 * @return
+	 * @throws BeanDefinitionStoreException
+	 */
 	@Override
 	public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
 		Assert.notNull(resources, "Resource array must not be null");
@@ -211,6 +217,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
 	public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
+
 		ResourceLoader resourceLoader = getResourceLoader();
 		if (resourceLoader == null) {
 			throw new BeanDefinitionStoreException(
@@ -219,8 +226,13 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
+			//  location是一个文件地址
+
 			try {
+				// 定位到了具体的beanDefinition配置文件
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
+
+				// 类似编程式方法使用IOC容器
 				int count = loadBeanDefinitions(resources);
 				if (actualResources != null) {
 					Collections.addAll(actualResources, resources);
@@ -248,6 +260,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 			return count;
 		}
 	}
+
 
 	@Override
 	public int loadBeanDefinitions(String... locations) throws BeanDefinitionStoreException {

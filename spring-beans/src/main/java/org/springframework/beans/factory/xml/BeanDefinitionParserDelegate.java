@@ -434,6 +434,7 @@ public class BeanDefinitionParserDelegate {
 			checkNameUniqueness(beanName, aliases, ele);
 		}
 
+		// 这里是对bean元素的详细解析
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
 			if (!StringUtils.hasText(beanName)) {
@@ -512,16 +513,21 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		try {
+			// 真正生成BeanDefinition对象的地方，下面设置各个属性
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 
+			// 解析<bean>的attribute
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
 
+			// 解析<bean>的信息
 			parseMetaElements(ele, bd);
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
 
+			// 解析<bean>的构造方法
 			parseConstructorArgElements(ele, bd);
+			// 解析<bean>的property
 			parsePropertyElements(ele, bd);
 			parseQualifierElements(ele, bd);
 
@@ -530,6 +536,7 @@ public class BeanDefinitionParserDelegate {
 
 			return bd;
 		}
+		// 下面这些异常是在配置bean时经常出现的
 		catch (ClassNotFoundException ex) {
 			error("Bean class [" + className + "] not found", ele, ex);
 		}
@@ -705,10 +712,12 @@ public class BeanDefinitionParserDelegate {
 	 * Parse property sub-elements of the given bean element.
 	 */
 	public void parsePropertyElements(Element beanEle, BeanDefinition bd) {
+		// 遍历所有bean元素下的property
 		NodeList nl = beanEle.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			if (isCandidateElement(node) && nodeNameEquals(node, PROPERTY_ELEMENT)) {
+				// 若是property元素，则对该元素进行解析
 				parsePropertyElement((Element) node, bd);
 			}
 		}
@@ -951,6 +960,7 @@ public class BeanDefinitionParserDelegate {
 			return valueHolder;
 		}
 		else if (subElement != null) {
+			// property子元素
 			return parsePropertySubElement(subElement, bd);
 		}
 		else {
@@ -1029,6 +1039,7 @@ public class BeanDefinitionParserDelegate {
 			return parseArrayElement(ele, bd);
 		}
 		else if (nodeNameEquals(ele, LIST_ELEMENT)) {
+			// list属性解析
 			return parseListElement(ele, bd);
 		}
 		else if (nodeNameEquals(ele, SET_ELEMENT)) {
@@ -1131,10 +1142,14 @@ public class BeanDefinitionParserDelegate {
 	public List<Object> parseListElement(Element collectionEle, @Nullable BeanDefinition bd) {
 		String defaultElementType = collectionEle.getAttribute(VALUE_TYPE_ATTRIBUTE);
 		NodeList nl = collectionEle.getChildNodes();
+
+		// 此数据结构用于存放list元素
 		ManagedList<Object> target = new ManagedList<>(nl.getLength());
 		target.setSource(extractSource(collectionEle));
 		target.setElementTypeName(defaultElementType);
 		target.setMergeEnabled(parseMergeAttribute(collectionEle));
+
+		// 具体的list元素解析过程
 		parseCollectionElements(nl, target, bd, defaultElementType);
 		return target;
 	}

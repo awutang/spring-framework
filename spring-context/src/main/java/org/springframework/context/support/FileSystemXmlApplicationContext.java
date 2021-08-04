@@ -139,6 +139,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 		super(parent);
 		setConfigLocations(configLocations);
 		if (refresh) {
+			// 容器初始化开始
 			refresh();
 		}
 	}
@@ -152,6 +153,8 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 	 * @param path path to the resource
 	 * @return the Resource handle
 	 * @see org.springframework.web.context.support.XmlWebApplicationContext#getResourceByPath
+	 *
+	 * 从AbstractApplicationContext.refresh()触发到此
 	 */
 	@Override
 	protected Resource getResourceByPath(String path) {
