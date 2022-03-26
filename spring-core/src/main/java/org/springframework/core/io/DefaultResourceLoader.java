@@ -155,6 +155,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 			return getResourceByPath(location);
 		}
 		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
+			// 处理带有classpath标记（“classpath:”）的地址
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}
 		else {

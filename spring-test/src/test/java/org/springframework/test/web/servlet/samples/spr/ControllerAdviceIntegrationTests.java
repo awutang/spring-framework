@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.annotation.RequestScope;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.junit.Assert.assertEquals;
@@ -79,6 +80,12 @@ public class ControllerAdviceIntegrationTests {
 		assertEquals(1, SingletonControllerAdvice.invocationCount.get());
 		assertEquals(1, PrototypeControllerAdvice.invocationCount.get());
 		assertEquals(1, RequestScopedControllerAdvice.invocationCount.get());
+	}
+
+	@Test
+	public void testDeferredResult() throws Exception {
+		this.mockMvc.perform(get("/deferredResultTest").param("requestParam", "foo"));
+
 	}
 
 	@Test
@@ -201,6 +208,23 @@ public class ControllerAdviceIntegrationTests {
 					";request-scoped:" + map.get("request-scoped") +
 					";requestParam:" + map.get("requestParam");
 		}
+
+		@GetMapping("/deferredResultTest")
+		DeferredResult<String> deferredResultTest(Model model) {
+			DeferredResult<String> deferredResult = new DeferredResult<>();
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					deferredResult.setResult("it's me!!!");
+				}
+			});
+			thread.setName("userThread");
+			thread.start();
+
+			return deferredResult;
+		}
+
+
 	}
 
 }

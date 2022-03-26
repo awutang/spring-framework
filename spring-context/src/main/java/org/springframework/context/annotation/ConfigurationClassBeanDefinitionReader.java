@@ -114,6 +114,7 @@ class ConfigurationClassBeanDefinitionReader {
 	public void loadBeanDefinitions(Set<ConfigurationClass> configurationModel) {
 		TrackedConditionEvaluator trackedConditionEvaluator = new TrackedConditionEvaluator();
 		for (ConfigurationClass configClass : configurationModel) {
+			//
 			loadBeanDefinitionsForConfigurationClass(configClass, trackedConditionEvaluator);
 		}
 	}
@@ -134,14 +135,18 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		// HandlerSpiConfiguration
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
+
+		// @Bean方法 也是根据方法生成bd,然后注册到bdMap中
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
 
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+		// MapperScannerRegistrar 执行
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 
@@ -154,6 +159,7 @@ class ConfigurationClassBeanDefinitionReader {
 
 		ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
 		configBeanDef.setScope(scopeMetadata.getScopeName());
+
 		String configBeanName = this.importBeanNameGenerator.generateBeanName(configBeanDef, this.registry);
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef, metadata);
 

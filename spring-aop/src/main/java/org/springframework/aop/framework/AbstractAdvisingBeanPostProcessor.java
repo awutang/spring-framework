@@ -58,6 +58,7 @@ public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSu
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) {
+		// 对bean不进行任何处理
 		return bean;
 	}
 

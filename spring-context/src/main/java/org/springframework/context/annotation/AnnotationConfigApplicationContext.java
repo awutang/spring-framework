@@ -63,6 +63,8 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
 	 */
 	public AnnotationConfigApplicationContext() {
+
+		// 1.注册spring5个内置类
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
@@ -84,8 +86,13 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * {@link Configuration @Configuration} classes
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
+		// 这里由于它有父类，所以会先调用父类构造方法，然后再调用自己的构造方法
+		// 在自己构造方法中初始一个读取器和扫描器
 		this();
+		// 注册启动类（配置了@ComponentScan）
 		register(componentClasses);
+
+		// 此时bdMap中有启动类+spring内置的5个类（重要！！！）
 		refresh();
 	}
 

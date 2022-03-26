@@ -83,22 +83,26 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 				(bean instanceof EnvironmentAware || bean instanceof EmbeddedValueResolverAware ||
 						bean instanceof ResourceLoaderAware || bean instanceof ApplicationEventPublisherAware ||
 						bean instanceof MessageSourceAware || bean instanceof ApplicationContextAware)) {
+			//
 			acc = this.applicationContext.getBeanFactory().getAccessControlContext();
 		}
 
 		if (acc != null) {
 			AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+				//
 				invokeAwareInterfaces(bean);
 				return null;
 			}, acc);
 		}
 		else {
+			//
 			invokeAwareInterfaces(bean);
 		}
 
 		return bean;
 	}
 
+	// 回调aware 这就是以前项目中写的各种实现aware接口的扩展类被执行到的地方
 	private void invokeAwareInterfaces(Object bean) {
 		if (bean instanceof Aware) {
 			if (bean instanceof EnvironmentAware) {

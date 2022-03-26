@@ -28,5 +28,5 @@ compileGroovy {
 // compileJava. We need to redefine dependencies to break task cycles.
 def deps = compileGroovy.taskDependencies.immutableValues + compileGroovy.taskDependencies.mutableValues
 compileGroovy.dependsOn = deps - "compileJava"
-compileKotlin.dependsOn(compileGroovy)
-compileKotlin.classpath += files(compileGroovy.destinationDir)
+//compileKotlin.dependsOn(compileGroovy)
+//compileKotlin.classpath += files(compileGroovy.destinationDir)

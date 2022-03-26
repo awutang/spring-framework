@@ -199,6 +199,7 @@ final class ConfigurationClass {
 	}
 
 	public void addImportBeanDefinitionRegistrar(ImportBeanDefinitionRegistrar registrar, AnnotationMetadata importingClassMetadata) {
+		//
 		this.importBeanDefinitionRegistrars.put(registrar, importingClassMetadata);
 	}
 

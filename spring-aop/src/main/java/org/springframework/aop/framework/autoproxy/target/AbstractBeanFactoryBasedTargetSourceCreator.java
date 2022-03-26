@@ -109,6 +109,8 @@ public abstract class AbstractBeanFactoryBasedTargetSourceCreator
 		if (isPrototypeBased()) {
 			bdCopy.setScope(BeanDefinition.SCOPE_PROTOTYPE);
 		}
+
+		//
 		internalBeanFactory.registerBeanDefinition(beanName, bdCopy);
 
 		// Complete configuring the PrototypeTargetSource.

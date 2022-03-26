@@ -60,6 +60,7 @@ abstract class ConfigurationClassUtils {
 
 	private static final Log logger = LogFactory.getLog(ConfigurationClassUtils.class);
 
+	// 这些都是lite配置类
 	private static final Set<String> candidateIndicators = new HashSet<>(8);
 
 	static {
@@ -113,9 +114,11 @@ abstract class ConfigurationClassUtils {
 		}
 
 		if (isFullConfigurationCandidate(metadata)) {
+			// 判断有@Configuration注解
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
 		else if (isLiteConfigurationCandidate(metadata)) {
+			// 判断有另外五个注解
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
 		else {
@@ -167,6 +170,12 @@ abstract class ConfigurationClassUtils {
 			return false;
 		}
 
+		/**
+		 * candidateIndicators.add(Component.class.getName());
+		 * 		candidateIndicators.add(ComponentScan.class.getName());
+		 * 		candidateIndicators.add(Import.class.getName());
+		 * 		candidateIndicators.add(ImportResource.class.getName());
+		 */
 		// Any of the typical annotations found?
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {

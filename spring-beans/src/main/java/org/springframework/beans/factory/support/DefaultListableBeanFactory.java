@@ -522,7 +522,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 										(dbd != null && !mbd.isLazyInit()) || containsSingleton(beanName)) &&
 								(includeNonSingletons ||
 										(dbd != null ? mbd.isSingleton() : isSingleton(beanName))) &&
-								isTypeMatch(beanName, type);
+
+										isTypeMatch(beanName, type);
 						if (!matchFound && isFactoryBean) {
 							// In case of FactoryBean, try to match FactoryBean instance itself next.
 							beanName = FACTORY_BEAN_PREFIX + beanName;
@@ -839,11 +840,15 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
+		// 遍历beanDefinitionMap
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			// 验证bd
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				// factoryBean BeanFactory
 				if (isFactoryBean(beanName)) {
+					//
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
 						FactoryBean<?> factory = (FactoryBean<?>) bean;
@@ -863,6 +868,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}
 				}
 				else {
+					//
 					getBean(beanName);
 				}
 			}
@@ -1163,6 +1169,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					candidates.put(beanName, getType(beanName));
 				}
 			}
+
+			// 如果没有primary也没有设置优先级，那么会出错
 			String candidateName = determinePrimaryCandidate(candidates, requiredType.toClass());
 			if (candidateName == null) {
 				candidateName = determineHighestPriorityCandidate(candidates, requiredType.toClass());
@@ -1634,6 +1642,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		if (containsBeanDefinition(beanName)) {
 			return getMergedLocalBeanDefinition(beanName).isPrimary();
 		}
+		// 顺着去找父容器
 		BeanFactory parent = getParentBeanFactory();
 		return (parent instanceof DefaultListableBeanFactory &&
 				((DefaultListableBeanFactory) parent).isPrimary(beanName, beanInstance));

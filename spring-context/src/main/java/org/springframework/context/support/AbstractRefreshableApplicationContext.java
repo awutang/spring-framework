@@ -130,7 +130,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			customizeBeanFactory(beanFactory);
 
 			// 初始化beanFactory
-			// 1. 加载beanDefinition(包括定位、)
+			// 1. 加载beanDefinition(包括定位、加载解析、注册)
 			// 将xml文件内容转成beanDefinition数据结构--也有beanDefinition注册
 			// 模板设计方法
 			loadBeanDefinitions(beanFactory);

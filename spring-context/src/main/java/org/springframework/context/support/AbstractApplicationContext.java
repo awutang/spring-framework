@@ -523,7 +523,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
-			// 在子类中启动refreshBeanFactory()
+			// 在子类中启动refreshBeanFactory()--定位、加载解析、注册beanDefinition到beanFactory中
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
@@ -537,9 +537,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				// 调用beanFactory的后置处理器，这些后置处理器是作为bean注册在context中的
 				// Invoke factory processors registered as beans in the context.
+				// 1.根据componentScan扫描springbean class->beanDefinition --由spring提供的BeanFactoryPostProcessor实现
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// 注册bean的后置处理器，在bean的创建过程中调用
+				// 注册bean的后置处理器(不仅注册到beanDefinitonMap中，也生成了对象)，在bean的创建过程中调用
 				// Register bean processors that intercept bean creation.
 				registerBeanPostProcessors(beanFactory);
 
@@ -611,6 +612,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 		}
 
+		// !!!重要
 		// Initialize any placeholder property sources in the context environment.
 		initPropertySources();
 
@@ -889,6 +891,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Allow for caching all bean definition metadata, not expecting further changes.
 		beanFactory.freezeConfiguration();
 
+		// 实例化所有非延迟的单例类
 		// Instantiate all remaining (non-lazy-init) singletons.
 		beanFactory.preInstantiateSingletons();
 	}
@@ -1115,6 +1118,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	// Implementation of BeanFactory interface
 	//---------------------------------------------------------------------
 
+	/**
+	 * 完成依赖注入--包括了实例创建（lazy-init）、并将实例引用设置到被引用的地方？
+	 * @param name the name of the bean to retrieve
+	 * @return
+	 * @throws BeansException
+	 */
 	@Override
 	public Object getBean(String name) throws BeansException {
 		assertBeanFactoryActive();
