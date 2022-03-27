@@ -561,7 +561,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 				// 实例化所有的non-lazy-init实例
 				// Instantiate all remaining (non-lazy-init) singletons.
-				// myConfusion:对于lazy-init的呢？
+				// myConfusionsv:对于lazy-init的呢？--lazyInit在需要用到bean的时候再创建，经历一遍完整的getBean创建流程
 				finishBeanFactoryInitialization(beanFactory);
 
 				// 发布容器事件

@@ -621,7 +621,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 在解决循环依赖时，当AService完成了注入BService之后，从二级缓存中获取AService完成了代理之后的对象
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
-				//
+				// bean原始对象
 				if (exposedObject == bean) {
 					exposedObject = earlySingletonReference;
 				}

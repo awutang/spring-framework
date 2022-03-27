@@ -274,6 +274,7 @@ final class PostProcessorRegistrationDelegate {
 		registerBeanPostProcessors(beanFactory, priorityOrderedPostProcessors);
 
 		// Next, register the BeanPostProcessors that implement Ordered.
+		// AnnotationAwareAspectJAutoProxyCreator
 		List<BeanPostProcessor> orderedPostProcessors = new ArrayList<>();
 		for (String ppName : orderedPostProcessorNames) {
 			BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
@@ -283,6 +284,8 @@ final class PostProcessorRegistrationDelegate {
 			}
 		}
 		sortPostProcessors(orderedPostProcessors, beanFactory);
+
+		// beanPostProcessors
 		registerBeanPostProcessors(beanFactory, orderedPostProcessors);
 
 		// Now, register all regular BeanPostProcessors.

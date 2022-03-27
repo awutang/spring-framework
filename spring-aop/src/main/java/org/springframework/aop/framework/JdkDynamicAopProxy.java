@@ -120,6 +120,10 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 		}
 		Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
 		findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
+		// 可以参考 JDK 动态代理的原理，调用方法的时候实际上调用的为生成的字节码文件加载成对应 Class 对象，
+		// Class 对象内部有个跟被代理对象一样 的方法名称，
+		// 此方法内部为 h.invoke()此时就会调用 JDK 或者是 Cglib 的实现对象因为对应的 h 为 Proxy 中的 InvocationHandler 对象，
+		// 而 JDK 和 Cglib 代理对象都实现了该接口。
 		return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);
 	}
 
@@ -150,6 +154,8 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 	 * Implementation of {@code InvocationHandler.invoke}.
 	 * <p>Callers will see exactly the exception thrown by the target,
 	 * unless a hook method throws an exception.
+	 *
+	 * 代理对象会执行到此处
 	 */
 	@Override
 	@Nullable
@@ -192,6 +198,8 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			target = targetSource.getTarget();
 			Class<?> targetClass = (target != null ? target.getClass() : null);
 
+			// 从代理工厂中拿到切面，并且跟当前被代理类和当前被调用方法匹配，如果匹配就返回切面中的 advice 对象，这就是 advice 执行链，
+			// 其实就是对应的 interceptorList 列表
 			// Get the interception chain for this method.
 			List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 
@@ -208,6 +216,8 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				// We need to create a method invocation...
 				MethodInvocation invocation =
 						new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);
+
+				// 执行目标对象方法
 				// Proceed to the joinpoint through the interceptor chain.
 				retVal = invocation.proceed();
 			}
