@@ -88,6 +88,7 @@ public class BeanFactoryAdvisorRetrievalHelper {
 				}
 				else {
 					try {
+						// BeanFactoryTransactionAttributeSourceAdvisor--internalTransactionAdvisor
 						advisors.add(this.beanFactory.getBean(name, Advisor.class));
 					}
 					catch (BeanCreationException ex) {

@@ -170,6 +170,8 @@ import org.springframework.web.util.UrlPathHelper;
  * @since 3.1
  * @see EnableWebMvc
  * @see WebMvcConfigurer
+ *
+ * 子容器配置类
  */
 public class WebMvcConfigurationSupport implements ApplicationContextAware, ServletContextAware {
 
@@ -273,6 +275,8 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	 */
 	@Bean
 	public RequestMappingHandlerMapping requestMappingHandlerMapping() {
+
+		// 在创建RequestMappingHandlerMapping过程中，通过afterPropertiesSet（）初始化url与method的映射关系
 		RequestMappingHandlerMapping mapping = createRequestMappingHandlerMapping();
 		mapping.setOrder(0);
 		mapping.setInterceptors(getInterceptors());
@@ -339,6 +343,8 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	 * Override this method to add Spring MVC interceptors for
 	 * pre- and post-processing of controller invocation.
 	 * @see InterceptorRegistry
+	 *
+	 * 自定义拦截器
 	 */
 	protected void addInterceptors(InterceptorRegistry registry) {
 	}

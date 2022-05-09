@@ -119,6 +119,7 @@ public final class SpringFactoriesLoader {
 	 */
 	public static List<String> loadFactoryNames(Class<?> factoryClass, @Nullable ClassLoader classLoader) {
 		String factoryClassName = factoryClass.getName();
+		//
 		return loadSpringFactories(classLoader).getOrDefault(factoryClassName, Collections.emptyList());
 	}
 
@@ -129,6 +130,11 @@ public final class SpringFactoriesLoader {
 		}
 
 		try {
+
+			// 解析配置文件
+			// org.springframework.context.ApplicationContextInitializer=\
+			//org.springframework.boot.autoconfigure.SharedMetadataReaderFactoryContextInitializer,\
+			//org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener
 			Enumeration<URL> urls = (classLoader != null ?
 					classLoader.getResources(FACTORIES_RESOURCE_LOCATION) :
 					ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));

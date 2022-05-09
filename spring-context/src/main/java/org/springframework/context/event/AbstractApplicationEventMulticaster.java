@@ -176,9 +176,11 @@ public abstract class AbstractApplicationEventMulticaster
 		Class<?> sourceType = (source != null ? source.getClass() : null);
 		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
 
+		// retriever与某一事件相关
 		// Quick check for existing entry on ConcurrentHashMap...
 		ListenerRetriever retriever = this.retrieverCache.get(cacheKey);
 		if (retriever != null) {
+			//
 			return retriever.getApplicationListeners();
 		}
 
@@ -192,6 +194,7 @@ public abstract class AbstractApplicationEventMulticaster
 					return retriever.getApplicationListeners();
 				}
 				retriever = new ListenerRetriever(true);
+				//
 				Collection<ApplicationListener<?>> listeners =
 						retrieveApplicationListeners(eventType, sourceType, retriever);
 				this.retrieverCache.put(cacheKey, retriever);
@@ -222,6 +225,7 @@ public abstract class AbstractApplicationEventMulticaster
 			listenerBeans = new LinkedHashSet<>(this.defaultRetriever.applicationListenerBeans);
 		}
 		for (ApplicationListener<?> listener : listeners) {
+			// 某一事件
 			if (supportsEvent(listener, eventType, sourceType)) {
 				if (retriever != null) {
 					retriever.applicationListeners.add(listener);
@@ -365,6 +369,7 @@ public abstract class AbstractApplicationEventMulticaster
 	 */
 	private class ListenerRetriever {
 
+		//
 		public final Set<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
 
 		public final Set<String> applicationListenerBeans = new LinkedHashSet<>();

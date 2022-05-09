@@ -108,6 +108,8 @@ import org.springframework.util.ReflectionUtils;
  * @since 3.1
  * @see #onStartup(Set, ServletContext)
  * @see WebApplicationInitializer
+ *
+ * 该类在servlet容器启动时被实例化，然后调用onStartup() --这一套spi在servlet容器中如何实现的？
  */
 @HandlesTypes(WebApplicationInitializer.class)
 public class SpringServletContainerInitializer implements ServletContainerInitializer {
@@ -115,10 +117,12 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 	/**
 	 * Delegate the {@code ServletContext} to any {@link WebApplicationInitializer}
 	 * implementations present on the application classpath.
+	 *
 	 * <p>Because this class declares @{@code HandlesTypes(WebApplicationInitializer.class)},
 	 * Servlet 3.0+ containers will automatically scan the classpath for implementations
 	 * of Spring's {@code WebApplicationInitializer} interface and provide the set of all
 	 * such types to the {@code webAppInitializerClasses} parameter of this method.
+	 *
 	 * <p>If no {@code WebApplicationInitializer} implementations are found on the classpath,
 	 * this method is effectively a no-op. An INFO-level log message will be issued notifying
 	 * the user that the {@code ServletContainerInitializer} has indeed been invoked but that
@@ -146,6 +150,8 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 
 		if (webAppInitializerClasses != null) {
 			for (Class<?> waiClass : webAppInitializerClasses) {
+
+				// 具体实现类进行实例化并放入initializers
 				// Be defensive: Some servlet containers provide us with invalid classes,
 				// no matter what @HandlesTypes says...
 				if (!waiClass.isInterface() && !Modifier.isAbstract(waiClass.getModifiers()) &&
@@ -169,6 +175,8 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 		servletContext.log(initializers.size() + " Spring WebApplicationInitializers detected on classpath");
 		AnnotationAwareOrderComparator.sort(initializers);
 		for (WebApplicationInitializer initializer : initializers) {
+
+			// 调用HandlesTypes收集到的WebApplicationInitializer实现类
 			initializer.onStartup(servletContext);
 		}
 	}

@@ -886,6 +886,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}, getAccessControlContext());
 				}
 				else {
+
+					// EventListenerMethodProcessor
 					smartSingleton.afterSingletonsInstantiated();
 				}
 			}
@@ -1210,6 +1212,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
 					descriptor, requestingBeanName);
 			if (result == null) {
+				// 非lazy则获取bean
 				result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter);
 			}
 			return result;
@@ -1253,6 +1256,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				return multipleBeans;
 			}
 
+			// type: a Map of candidate names and candidate instances that match
+			//	 * the required type (never {@code null})
 			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
 			if (matchingBeans.isEmpty()) {
 				if (isRequired(descriptor)) {
@@ -1264,6 +1269,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			String autowiredBeanName;
 			Object instanceCandidate;
 
+			// 如果根据type获得了多个，则再次挑选
 			if (matchingBeans.size() > 1) {
 				autowiredBeanName = determineAutowireCandidate(matchingBeans, descriptor);
 				if (autowiredBeanName == null) {
@@ -1532,7 +1538,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 * @return the name of the autowire candidate, or {@code null} if none found
 	 */
 	@Nullable
-	protected String determineAutowireCandidate(Map<String, Object> candidates, DependencyDescriptor descriptor) {
+	protected String  determineAutowireCandidate(Map<String, Object> candidates, DependencyDescriptor descriptor) {
 		Class<?> requiredType = descriptor.getDependencyType();
 		String primaryCandidate = determinePrimaryCandidate(candidates, requiredType);
 		if (primaryCandidate != null) {
@@ -1547,6 +1553,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			String candidateName = entry.getKey();
 			Object beanInstance = entry.getValue();
 			if ((beanInstance != null && this.resolvableDependencies.containsValue(beanInstance)) ||
+					// 按名称匹配,但是@Autowired默认是不指定name的，所以默认情况下此处不会生效--descriptor.getDependencyName()返回null
 					matchesBeanName(candidateName, descriptor.getDependencyName())) {
 				return candidateName;
 			}

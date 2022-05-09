@@ -209,6 +209,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	protected void initHandlerMethods() {
 		for (String beanName : getCandidateBeanNames()) {
 			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
+				//
 				processCandidateBean(beanName);
 			}
 		}
@@ -249,7 +250,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 		}
+
+		// 如果类上有@Controller或@RequestMapping注解，则
 		if (beanType != null && isHandler(beanType)) {
+			// 建立uri和method的对应关系
 			detectHandlerMethods(beanName);
 		}
 	}
@@ -265,9 +269,12 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 		if (handlerType != null) {
 			Class<?> userType = ClassUtils.getUserClass(handlerType);
+
+			// 方法对象映射注解封装而成的对象
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> {
 						try {
+							//
 							return getMappingForMethod(method, userType);
 						}
 						catch (Throwable ex) {
@@ -280,6 +287,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			}
 			methods.forEach((method, mapping) -> {
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
+				// 根据uri(类与方法上的URL合并)可以找到method
 				registerHandlerMethod(handler, invocableMethod, mapping);
 			});
 		}
@@ -580,15 +588,27 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			this.readWriteLock.readLock().unlock();
 		}
 
+		/**
+		 * 执行之后，就可以通过一个url映射到requestMappingInfo, 再通过requestMappingInfo找到handlerMethod
+		 * @param mapping
+		 * @param handler
+		 * @param method
+		 */
 		public void register(T mapping, Object handler, Method method) {
 			this.readWriteLock.writeLock().lock();
 			try {
+
+				//
 				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
 				assertUniqueMethodMapping(handlerMethod, mapping);
+
+				// uri对象（requestMappingInfo对象）：handlerMethod
 				this.mappingLookup.put(mapping, handlerMethod);
 
 				List<String> directUrls = getDirectUrls(mapping);
 				for (String url : directUrls) {
+
+					// url：uri对象
 					this.urlLookup.add(url, mapping);
 				}
 

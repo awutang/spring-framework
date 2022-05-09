@@ -504,6 +504,14 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * {@link org.springframework.web.context.ContextLoaderListener bootstrapped} context.
 	 * <p>Primarily added to support use in embedded servlet containers.
 	 * @since 4.0
+	 *
+	 * DispatcherServlet生命周期过程中会执行到aware ApplicationContextAware.setApplicationContext()将当前applicationContext给servlet
+	 * springboot中创建的容器是AnnotationConfigServletWebServerApplicationContext,符合applicationContext instanceof WebApplicationContext
+	 * 因此this.webApplicationContext用同一个容器，而不再区分父子容器了
+	 * --@EnableAutoConfiguration->DispatcherServletAutoConfiguration->DispatcherServlet注册@Bean
+	 *
+	 * 之前之所以会有父子容器，除了单一职责、便于替换mvc、节省bean之外，技术层面上是因为之前的DispatcherServlet没有被配置，直接new()的，
+	 * 不会有生命周期，不会执行到此处
 	 */
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
@@ -527,6 +535,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		long startTime = System.currentTimeMillis();
 
 		try {
+			//
 			this.webApplicationContext = initWebApplicationContext();
 			initFrameworkServlet();
 		}
@@ -558,6 +567,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see #setContextConfigLocation
 	 */
 	protected WebApplicationContext initWebApplicationContext() {
+		// 获取ContextLoaderListener时触发创建的父容器
 		WebApplicationContext rootContext =
 				WebApplicationContextUtils.getWebApplicationContext(getServletContext());
 		WebApplicationContext wac = null;
@@ -587,6 +597,8 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			wac = findWebApplicationContext();
 		}
 		if (wac == null) {
+
+			// 子容器初始化
 			// No context instance is defined for this servlet -> create a local one
 			wac = createWebApplicationContext(rootContext);
 		}
@@ -600,6 +612,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			}
 		}
 
+		//
 		if (this.publishContext) {
 			// Publish the context as a servlet context attribute.
 			String attrName = getServletContextAttributeName();
@@ -649,6 +662,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see org.springframework.web.context.support.XmlWebApplicationContext
 	 */
 	protected WebApplicationContext createWebApplicationContext(@Nullable ApplicationContext parent) {
+		//
 		Class<?> contextClass = getContextClass();
 		if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) {
 			throw new ApplicationContextException(
@@ -660,11 +674,15 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 				(ConfigurableWebApplicationContext) BeanUtils.instantiateClass(contextClass);
 
 		wac.setEnvironment(getEnvironment());
+		//
 		wac.setParent(parent);
+		// web.xml中的mvc配置文件
 		String configLocation = getContextConfigLocation();
 		if (configLocation != null) {
 			wac.setConfigLocation(configLocation);
 		}
+
+		// 解析配置文件，将spring容器进行初始化（包括refresh所有步骤）
 		configureAndRefreshWebApplicationContext(wac);
 
 		return wac;
@@ -699,6 +717,8 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		postProcessWebApplicationContext(wac);
 		applyInitializers(wac);
+
+		// 又初始化一个容器-给mvc用的
 		wac.refresh();
 	}
 
@@ -870,6 +890,8 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 	/**
 	 * Override the parent class implementation in order to intercept PATCH requests.
+	 *
+	 * url请求会从web容器执行到此处
 	 */
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
@@ -877,6 +899,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		HttpMethod httpMethod = HttpMethod.resolve(request.getMethod());
 		if (httpMethod == HttpMethod.PATCH || httpMethod == null) {
+			//
 			processRequest(request, response);
 		}
 		else {

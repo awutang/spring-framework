@@ -400,6 +400,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			this.earlyApplicationEvents.add(applicationEvent);
 		}
 		else {
+			// ApplicationListenerMethodAdapter HandlerSpiApplicationContextInitializer
 			getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
 		}
 
@@ -548,7 +549,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Initialize message source for this context.
 				initMessageSource();
 
-				// 初始化上下文中给的事件机制
+				// zhuce SimpleApplicationEventMulticaster
 				// Initialize event multicaster for this context.
 				initApplicationEventMulticaster();
 
@@ -556,6 +557,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Initialize other special beans in specific context subclasses.
 				onRefresh();
 
+				// 注册全部的listener(包括注解了@Listener的方法)到SimpleApplicationEventMulticaster中
 				// Check for listener beans and register them.
 				registerListeners();
 
@@ -564,7 +566,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// myConfusionsv:对于lazy-init的呢？--lazyInit在需要用到bean的时候再创建，经历一遍完整的getBean创建流程
 				finishBeanFactoryInitialization(beanFactory);
 
-				// 发布容器事件
+				// 发布spring容器结束初始化这个事件
 				// Last step: publish corresponding event.
 				finishRefresh();
 			}
@@ -787,6 +789,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 		}
 		else {
+			//
 			this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
 			beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster);
 			if (logger.isTraceEnabled()) {
@@ -838,6 +841,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Doesn't affect other listeners, which can be added without being beans.
 	 */
 	protected void registerListeners() {
+
+		// ApplicationListenerMethodAdapter
 		// Register statically specified listeners first.
 		for (ApplicationListener<?> listener : getApplicationListeners()) {
 			getApplicationEventMulticaster().addApplicationListener(listener);
@@ -855,6 +860,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		this.earlyApplicationEvents = null;
 		if (!CollectionUtils.isEmpty(earlyEventsToProcess)) {
 			for (ApplicationEvent earlyEvent : earlyEventsToProcess) {
+				//
 				getApplicationEventMulticaster().multicastEvent(earlyEvent);
 			}
 		}

@@ -264,8 +264,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 
 		else {
+
+			// 2.Bean 的多例模式不支持循环依赖
+			// doGetBean 方法中有判断，因为多例的 Bean 不进行实例化，所以没法从一级缓存中获取，
+			// 所以直接就走此方法 isPrototypeCurrentlyInCreation
+			// 如果是 scope 是 Prototype 的，校验是否有出现循环依赖，如果有则 直接报错。
 			// Fail if we're already creating this bean instance:
-			// We're assumably within a circular reference.
+			// We're assumably within a circular reference.（推测可能发生了循环依赖）
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
@@ -353,6 +358,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
 					try {
+
 						beforePrototypeCreation(beanName);
 						// 没有在map中获取已有实例的逻辑，因为原型prototype总是新建对象的
 						prototypeInstance = createBean(beanName, mbd, args);

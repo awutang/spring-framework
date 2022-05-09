@@ -53,8 +53,10 @@ public abstract class AbstractAnnotationConfigDispatcherServletInitializer
 	@Override
 	@Nullable
 	protected WebApplicationContext createRootApplicationContext() {
+		// 需要子类定义扫描的类集合 类中需要排除@Controller
 		Class<?>[] configClasses = getRootConfigClasses();
 		if (!ObjectUtils.isEmpty(configClasses)) {
+			// 创建父容器
 			AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 			context.register(configClasses);
 			return context;
@@ -72,6 +74,7 @@ public abstract class AbstractAnnotationConfigDispatcherServletInitializer
 	@Override
 	protected WebApplicationContext createServletApplicationContext() {
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+		//
 		Class<?>[] configClasses = getServletConfigClasses();
 		if (!ObjectUtils.isEmpty(configClasses)) {
 			context.register(configClasses);
@@ -93,6 +96,8 @@ public abstract class AbstractAnnotationConfigDispatcherServletInitializer
 	 * {@linkplain #createServletApplicationContext() Servlet application context}.
 	 * @return the configuration for the Servlet application context, or
 	 * {@code null} if all configuration is specified through root config classes.
+	 *
+	 * 自定义，程序员扩展 扫描@Controller
 	 */
 	@Nullable
 	protected abstract Class<?>[] getServletConfigClasses();

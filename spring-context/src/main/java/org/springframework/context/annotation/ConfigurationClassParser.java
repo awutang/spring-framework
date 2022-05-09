@@ -295,6 +295,7 @@ class ConfigurationClassParser {
 					if (bdCand == null) {
 						bdCand = holder.getBeanDefinition();
 					}
+					// 如果是配置类，递归调用当前方法
 					if (ConfigurationClassUtils.checkConfigurationClassCandidate(bdCand, this.metadataReaderFactory)) {
 						parse(bdCand.getBeanClassName(), holder.getBeanName());
 					}
@@ -321,6 +322,7 @@ class ConfigurationClassParser {
 		// Process individual @Bean methods
 		Set<MethodMetadata> beanMethods = retrieveBeanMethodMetadata(sourceClass);
 		for (MethodMetadata methodMetadata : beanMethods) {
+			// 将有@Bean注解的方法放入configClass
 			configClass.addBeanMethod(new BeanMethod(methodMetadata, configClass));
 		}
 

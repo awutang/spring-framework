@@ -276,6 +276,7 @@ public class ContextLoader {
 			// Store context in local instance variable, to guarantee that
 			// it is available on ServletContext shutdown.
 			if (this.context == null) {
+				// 实例化
 				this.context = createWebApplicationContext(servletContext);
 			}
 			if (this.context instanceof ConfigurableWebApplicationContext) {
@@ -289,9 +290,11 @@ public class ContextLoader {
 						ApplicationContext parent = loadParentContext(servletContext);
 						cwac.setParent(parent);
 					}
+					// 初始化
 					configureAndRefreshWebApplicationContext(cwac, servletContext);
 				}
 			}
+			// 并设置到servletContext中
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
 
 			ClassLoader ccl = Thread.currentThread().getContextClassLoader();
@@ -384,6 +387,8 @@ public class ContextLoader {
 		}
 
 		wac.setServletContext(sc);
+
+		// spring配置文件
 		String configLocationParam = sc.getInitParameter(CONFIG_LOCATION_PARAM);
 		if (configLocationParam != null) {
 			wac.setConfigLocation(configLocationParam);
@@ -398,6 +403,7 @@ public class ContextLoader {
 		}
 
 		customizeContext(sc, wac);
+		// spring容器初始化
 		wac.refresh();
 	}
 

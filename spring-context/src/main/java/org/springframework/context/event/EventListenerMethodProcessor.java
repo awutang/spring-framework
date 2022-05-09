@@ -89,6 +89,7 @@ public class EventListenerMethodProcessor
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
 
+		// DefaultEventListenerFactory
 		Map<String, EventListenerFactory> beans = beanFactory.getBeansOfType(EventListenerFactory.class, false, false);
 		List<EventListenerFactory> factories = new ArrayList<>(beans.values());
 		AnnotationAwareOrderComparator.sort(factories);
@@ -130,6 +131,7 @@ public class EventListenerMethodProcessor
 						}
 					}
 					try {
+						//
 						processBean(beanName, type);
 					}
 					catch (Throwable ex) {
@@ -141,6 +143,20 @@ public class EventListenerMethodProcessor
 		}
 	}
 
+	/**
+	 * 另外当有自定义listener，通常会使用@EventListener注解再监听的方法上，
+	 * 实际上是通过EventListenerMethodProcessor，解析配置类包含@EventListener注解的方法，
+	 * 通过org.springframework.context.event.DefaultEventListenerFactory将对应的方法包装成
+	 * org.springframework.context.event.ApplicationListenerMethodAdapter#ApplicationListenerMethodAdapter对象，
+	 * 改对象实际上就是一个listener
+	 *
+	 * 作者：Eshin_Ye
+	 * 链接：https://www.jianshu.com/p/615f4661be52
+	 * 来源：简书
+	 * 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+	 * @param beanName
+	 * @param targetType
+	 */
 	private void processBean(final String beanName, final Class<?> targetType) {
 		if (!this.nonAnnotatedClasses.contains(targetType) &&
 				!targetType.getName().startsWith("java") &&
@@ -148,6 +164,8 @@ public class EventListenerMethodProcessor
 
 			Map<Method, EventListener> annotatedMethods = null;
 			try {
+				// 查找类中被@EventListener注解的方法
+				// 自定义listener，通常会使用@EventListener注解再监听的方法上
 				annotatedMethods = MethodIntrospector.selectMethods(targetType,
 						(MethodIntrospector.MetadataLookup<EventListener>) method ->
 								AnnotatedElementUtils.findMergedAnnotation(method, EventListener.class));
@@ -175,11 +193,15 @@ public class EventListenerMethodProcessor
 					for (EventListenerFactory factory : factories) {
 						if (factory.supportsMethod(method)) {
 							Method methodToUse = AopUtils.selectInvocableMethod(method, context.getType(beanName));
+
+							// DefaultEventListenerFactory
+							// 对象与方法一一对应
 							ApplicationListener<?> applicationListener =
 									factory.createApplicationListener(beanName, targetType, methodToUse);
 							if (applicationListener instanceof ApplicationListenerMethodAdapter) {
 								((ApplicationListenerMethodAdapter) applicationListener).init(context, this.evaluator);
 							}
+							//
 							context.addApplicationListener(applicationListener);
 							break;
 						}

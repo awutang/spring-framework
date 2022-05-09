@@ -139,6 +139,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
+		//
 		processEvent(event);
 	}
 
@@ -176,6 +177,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 	public void processEvent(ApplicationEvent event) {
 		Object[] args = resolveArguments(event);
 		if (shouldHandle(event, args)) {
+			//
 			Object result = doInvoke(args);
 			if (result != null) {
 				handleResult(result);
@@ -258,6 +260,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 		Object bean = getTargetBean();
 		ReflectionUtils.makeAccessible(this.method);
 		try {
+			// 方法执行
 			return this.method.invoke(bean, args);
 		}
 		catch (IllegalArgumentException ex) {

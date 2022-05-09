@@ -60,7 +60,10 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
+		// 父容器
 		super.onStartup(servletContext);
+
+		// dispatcherServlet初始化，并注册到servletContext
 		registerDispatcherServlet(servletContext);
 	}
 
@@ -79,26 +82,33 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 		String servletName = getServletName();
 		Assert.hasLength(servletName, "getServletName() must not return null or empty");
 
+		// 创建子容器
 		WebApplicationContext servletAppContext = createServletApplicationContext();
 		Assert.notNull(servletAppContext, "createServletApplicationContext() must not return null");
 
+		//
 		FrameworkServlet dispatcherServlet = createDispatcherServlet(servletAppContext);
 		Assert.notNull(dispatcherServlet, "createDispatcherServlet(WebApplicationContext) must not return null");
 		dispatcherServlet.setContextInitializers(getServletApplicationContextInitializers());
 
+		// 注册到servletContext
 		ServletRegistration.Dynamic registration = servletContext.addServlet(servletName, dispatcherServlet);
 		if (registration == null) {
 			throw new IllegalStateException("Failed to register servlet with name '" + servletName + "'. " +
 					"Check if there is another servlet registered under the same name.");
 		}
 
+		// 之后dispatcherServlet.init,进行子容器的初始化
 		registration.setLoadOnStartup(1);
+
 		registration.addMapping(getServletMappings());
 		registration.setAsyncSupported(isAsyncSupported());
 
+		// 给servlet添加filter
 		Filter[] filters = getServletFilters();
 		if (!ObjectUtils.isEmpty(filters)) {
 			for (Filter filter : filters) {
+				// 扩展点 可以自定义filter
 				registerServletFilter(servletContext, filter);
 			}
 		}
@@ -159,6 +169,8 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	 * Specify filters to add and map to the {@code DispatcherServlet}.
 	 * @return an array of filters or {@code null}
 	 * @see #registerServletFilter(ServletContext, Filter)
+	 *
+	 * 可以自定义filter
 	 */
 	@Nullable
 	protected Filter[] getServletFilters() {
@@ -184,8 +196,14 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	 */
 	protected FilterRegistration.Dynamic registerServletFilter(ServletContext servletContext, Filter filter) {
 		String filterName = Conventions.getVariableName(filter);
+
+		// 在调用servletContext添加filter的时候，如果重名，方法的返回值就是空，如果是空，就走到循环里面，下次的名字就是
+		//
+		//registration = servletContext.addFilter(filterName + "#" + counter, filter);
+		//counter会一直到100。如果到了100，就直接报错，同一个filter添加了100次。。也就是说，他允许添加一个filter的时候重名100个对象。
 		Dynamic registration = servletContext.addFilter(filterName, filter);
 
+		// 处理重名
 		if (registration == null) {
 			int counter = 0;
 			while (registration == null) {

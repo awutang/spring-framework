@@ -214,6 +214,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 * does not have a {@code @RequestMapping} annotation.
 	 * @see #getCustomMethodCondition(Method)
 	 * @see #getCustomTypeCondition(Class)
+	 *
+	 * 把类和方法上的RequestMapping合并
 	 */
 	@Override
 	@Nullable

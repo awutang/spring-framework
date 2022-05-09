@@ -75,10 +75,21 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 		throw new UnknownAdviceTypeException(advice);
 	}
 
+	/**
+	 * 此步骤最关键对不同类型的 advice 进行了统一包装，方便后续进行统一的代码调用如下所示:
+	 * 	如果是 MethodInterceptor 类型的，如: AspectJAroundAdvice 、 AspectJAfterAdvice 、 AspectJAfterThrowingAdvice 直 接 添 加 到 拦 截 器
+	 * 	如 果 是MethodBeforeAdviceAdapter、AfterReturningAdviceAdapter、ThrowsAdviceAdapter则需要 advice 包装成 MethodInterceptor
+	 * 		类型的 advice，方便后续统一调用。
+	 * @param advisor the Advisor to find an interceptor for
+	 * @return
+	 * @throws UnknownAdviceTypeException
+	 */
 	@Override
 	public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
 		List<MethodInterceptor> interceptors = new ArrayList<>(3);
 		Advice advice = advisor.getAdvice();
+
+		//
 		if (advice instanceof MethodInterceptor) {
 			interceptors.add((MethodInterceptor) advice);
 		}
